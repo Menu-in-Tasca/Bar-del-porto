@@ -404,6 +404,48 @@ body.m-sfoglia .demo-btn{bottom:calc(84px + env(safe-area-inset-bottom,0px));}
 [data-style=notte] .cphoto{max-width:none;border-radius:18px;border:1px solid var(--accent);box-shadow:0 0 18px var(--glow);position:relative;}
 [data-style=notte] .cphoto + .medal{margin:-46px 0 0 16px;box-shadow:0 0 0 4px var(--bg),0 0 16px var(--glow);}
 .m-sfoglia .page .cover:has(.cphoto){justify-content:flex-start;}
+
+/* ================= foto del locale come sfondo leggero ================= */
+#bgphoto{position:fixed;inset:0;z-index:0;background:center/cover no-repeat;opacity:0;pointer-events:none;transition:opacity .35s;}
+body.has-bg #bgphoto{opacity:.22;}
+[data-style=notte] body.has-bg #bgphoto,[data-style=lavagna] body.has-bg #bgphoto{opacity:.3;}
+[data-style=osteria] body.has-bg #bgphoto{opacity:.26;mix-blend-mode:multiply;}
+/* "solo foto": la foto è la protagonista, niente colore del locale e niente decorazioni che la coprono */
+body.bg-chiaro #bgphoto{opacity:.72 !important;mix-blend-mode:normal !important;filter:saturate(1.05);}
+body.bg-chiaro #bgphoto::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.42));}
+body.bg-chiaro{background-image:none !important;}
+[data-style=riviera] body.bg-chiaro .cover::before{display:none;}
+[data-style=riviera] body.bg-chiaro .pagehead h2::after{display:none;}
+[data-style=osteria] body.bg-chiaro .topfix,[data-style=osteria] body.bg-chiaro .botnav{background:linear-gradient(rgba(0,0,0,.55),transparent);}
+body.bg-chiaro .cover h1,body.bg-chiaro .pagehead h2,body.bg-chiaro .place,body.bg-chiaro .covernote{text-shadow:0 1px 8px rgba(0,0,0,.45);}
+body.has-bg #app{position:relative;z-index:1;}
+body.has-bg .page,body.has-bg .flow,body.has-bg .tiles-wrap,body.has-bg .acc,body.has-bg .sect-view{background:transparent;}
+/* pulsante delle demo: foto in alto / di sfondo */
+.phswitch{display:inline-flex;gap:0;margin:14px auto 0;color:var(--on);border:1.5px solid var(--on);border-radius:22px;overflow:hidden;font-size:12.5px;font-weight:700;}
+.cover .phswitch{align-self:center;}
+.phswitch button{border:0;background:transparent;color:inherit;padding:7px 12px;font:inherit;cursor:pointer;}
+.phswitch button.on{background:var(--on);color:var(--bg);}
+[data-style=lavagna] .phswitch,[data-style=notte] .phswitch{align-self:flex-start;}
+
+/* ================= menu in pausa (stagionale) ================= */
+.pausa{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:40px 24px;color:var(--on);position:relative;z-index:1;}
+.pausa h1{font-family:var(--fh);font-size:34px;margin:10px 0 0;line-height:1.1;}
+.pausa .place{margin:0;color:var(--on-soft);}
+.pausa-big{font-family:var(--fh);font-size:26px;font-weight:700;margin:28px 0 0;max-width:320px;line-height:1.2;}
+.pausa-when{margin:0;font-size:17px;color:var(--on-soft);}
+
+/* ================= filtro allergeni: non indicati, nascondi ================= */
+.unk{flex-wrap:wrap;outline:1.5px dashed currentColor;outline-offset:3px;border-radius:6px;}
+.unkb{flex-basis:100%;display:block;font-size:11.5px;font-weight:700;margin-top:3px;opacity:.85;}
+body.av-hide .avoid{display:none !important;}
+.avhide{display:flex;align-items:center;gap:10px;margin:14px 0 4px;font-weight:600;font-size:14.5px;cursor:pointer;}
+.avhide input{width:20px;height:20px;accent-color:#161616;flex-shrink:0;}
+/* ================= recensioni e firma ================= */
+.revfoot{display:flex;justify-content:center;padding:18px 16px 26px;}
+.revbtn{display:inline-block;margin:0 auto;padding:10px 16px;border-radius:22px;background:var(--on);color:var(--bg) !important;font-weight:700;font-size:14px;text-decoration:none;}
+.credit{display:block;margin:16px auto 4px;font-size:11px;opacity:.6;color:inherit !important;text-decoration:none;letter-spacing:.2px;}
+.cover .revbtn,.cover .credit{align-self:center;text-align:center;}
+[data-style=lavagna] .cover .revbtn,[data-style=lavagna] .cover .credit,[data-style=notte] .cover .revbtn,[data-style=notte] .cover .credit{align-self:flex-start;}
 /* =====================================================================
    CARATTERE DEGLI STILI
    Riviera  = stabilimento balneare: tenda a righe, salvagente, biglietto, onde
@@ -556,6 +598,8 @@ const CONFIG = {
   MODE:     "tessere",      // sfoglia | scroll | schede | tessere
   LOGO:     "logo.jpg",     // file del logo caricato accanto a questa pagina
   LINGUE:   "it,en,de",     // lingue del menu: "it" (solo italiano) | "it,en" | "it,de" | "it,en,de"
+  FOTO:     "alto",
+  STATISTICHE: "https://script.google.com/macros/s/AKfycbyqnPE9ryeK9Ai75AzhLcbDWUKfTAxKh6iT-tmDAP0rzGmPkGc7vY_3GNrzRs99_TSj/exec",   // conteggi anonimi per il pannello (vuoto = spenti)         // foto del locale: "alto" (in copertina) | "sfondo" (leggera, a colori) | "solo foto" (leggera, senza il colore del locale)
 };
 // =====================================================================
 const STYLE_COLOR = {riviera:'#139AC8', elegante:'#0F3D5E', lavagna:'#2E3A33', osteria:'#B5532E', notte:'#1B1036'};
@@ -565,8 +609,11 @@ const UI = {
   it: {name:'Italiano', hours:'Orari', items:n => `${n} ${n===1?'voce':'voci'}`, props:n => `${n} ${n===1?'proposta':'proposte'} · scorri di lato`,
     all:'Tutte le sezioni', prev:'Pagina precedente', next:'Pagina successiva', tap:'Tocca per vedere la foto', nophoto:'Foto non disponibile',
     close:'Chiudi', lang:'Lingua', alg:'Allergeni', algBtn:'Allergeni e intolleranze', contains:'Allergeni',
-    algIntro:'Tocca gli allergeni che vuoi evitare: i prodotti che li contengono diventano grigi.',
-    algNone:'Nessun allergene scelto.', algHit:n => n===1 ? '1 prodotto segnato in grigio.' : `${n} prodotti segnati in grigio.`,
+    algIntro:'Tocca gli allergeni che vuoi evitare: i prodotti che li contengono diventano grigi, oppure spariscono se scegli "Nascondi".',
+    algNone:'Nessun allergene scelto.', algHit:n => n===1 ? '1 prodotto li contiene.' : `${n} prodotti li contengono.`,
+    algUnk:n => n===1 ? '1 prodotto non ha gli allergeni indicati: chiedi al personale.' : `${n} prodotti non hanno gli allergeni indicati: chiedi al personale.`,
+    unk:'Allergeni non indicati: chiedi al personale', hide:'Nascondi i prodotti che li contengono',
+    review:'Ti è piaciuto? Lasciaci una recensione', credit:'Menu digitale di Menù in Tasca',
     algZero:'Nessun prodotto del menu risulta contenerli.',
     algFine:'I numeri accanto ai prodotti indicano gli allergeni (Reg. UE 1169/2011). Le indicazioni sono a titolo informativo: in caso di allergie o intolleranze chiedi sempre al personale.',
     clear:'Azzera', done:'Fatto', loading:'Caricamento del menu…', down:'Il menu non è raggiungibile in questo momento.<br>Riprova tra poco.',
@@ -574,8 +621,11 @@ const UI = {
   en: {name:'English', hours:'Opening hours', items:n => `${n} ${n===1?'item':'items'}`, props:n => `${n} ${n===1?'choice':'choices'} · swipe sideways`,
     all:'All sections', prev:'Previous page', next:'Next page', tap:'Tap to see the photo', nophoto:'Photo not available',
     close:'Close', lang:'Language', alg:'Allergens', algBtn:'Allergens and intolerances', contains:'Allergens',
-    algIntro:'Tap the allergens you want to avoid: items that contain them turn grey.',
-    algNone:'No allergens selected.', algHit:n => n===1 ? '1 item marked in grey.' : `${n} items marked in grey.`,
+    algIntro:'Tap the allergens you want to avoid: items that contain them turn grey, or disappear if you choose "Hide".',
+    algNone:'No allergens selected.', algHit:n => n===1 ? '1 item contains them.' : `${n} items contain them.`,
+    algUnk:n => n===1 ? '1 item has no allergen information: please ask our staff.' : `${n} items have no allergen information: please ask our staff.`,
+    unk:'Allergens not listed: please ask our staff', hide:'Hide items that contain them',
+    review:'Enjoyed it? Leave us a review', credit:'Digital menu by Menù in Tasca',
     algZero:'No item on the menu is listed as containing them.',
     algFine:'The numbers next to each item show its allergens (EU Reg. 1169/2011). This is for information only: if you have allergies or intolerances, always ask our staff.',
     clear:'Clear', done:'Done', loading:'Loading the menu…', down:'The menu can\'t be reached right now.<br>Please try again shortly.',
@@ -583,8 +633,11 @@ const UI = {
   de: {name:'Deutsch', hours:'Öffnungszeiten', items:n => `${n} ${n===1?'Eintrag':'Einträge'}`, props:n => `${n} ${n===1?'Angebot':'Angebote'} · seitlich wischen`,
     all:'Alle Bereiche', prev:'Vorherige Seite', next:'Nächste Seite', tap:'Tippen, um das Foto zu sehen', nophoto:'Foto nicht verfügbar',
     close:'Schließen', lang:'Sprache', alg:'Allergene', algBtn:'Allergene und Unverträglichkeiten', contains:'Allergene',
-    algIntro:'Tippen Sie auf die Allergene, die Sie meiden möchten: Produkte, die sie enthalten, werden grau.',
-    algNone:'Keine Allergene ausgewählt.', algHit:n => n===1 ? '1 Produkt grau markiert.' : `${n} Produkte grau markiert.`,
+    algIntro:'Tippen Sie auf die Allergene, die Sie meiden möchten: Produkte, die sie enthalten, werden grau oder verschwinden, wenn Sie "Ausblenden" wählen.',
+    algNone:'Keine Allergene ausgewählt.', algHit:n => n===1 ? '1 Produkt enthält sie.' : `${n} Produkte enthalten sie.`,
+    algUnk:n => n===1 ? 'Bei 1 Produkt sind keine Allergene angegeben: bitte Personal fragen.' : `Bei ${n} Produkten sind keine Allergene angegeben: bitte Personal fragen.`,
+    unk:'Allergene nicht angegeben: bitte Personal fragen', hide:'Produkte ausblenden, die sie enthalten',
+    review:'Hat es Ihnen gefallen? Bewerten Sie uns', credit:'Digitale Speisekarte von Menù in Tasca',
     algZero:'Laut Speisekarte enthält kein Produkt diese Allergene.',
     algFine:'Die Zahlen neben den Produkten zeigen die Allergene (EU-Verordnung 1169/2011). Die Angaben dienen nur zur Information: Bei Allergien oder Unverträglichkeiten fragen Sie bitte immer das Personal.',
     clear:'Zurücksetzen', done:'Fertig', loading:'Speisekarte wird geladen…', down:'Die Speisekarte ist gerade nicht erreichbar.<br>Bitte versuchen Sie es gleich noch einmal.',
@@ -670,12 +723,12 @@ const CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 const ALG_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22V7"/><path d="M12 7c-1.5-1.2-1.5-3.8 0-5 1.5 1.2 1.5 3.8 0 5z"/><path d="M12 12.5c-2.8 0-4.6-1.6-4.6-4.1 2.7 0 4.6 1.5 4.6 4.1z"/><path d="M12 12.5c2.8 0 4.6-1.6 4.6-4.1-2.7 0-4.6 1.5-4.6 4.1z"/><path d="M12 17.5c-2.8 0-4.6-1.6-4.6-4.1 2.7 0 4.6 1.5 4.6 4.1z"/><path d="M12 17.5c2.8 0 4.6-1.6 4.6-4.1-2.7 0-4.6 1.5-4.6 4.1z"/></svg>';
 const GLOBE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.7 5.5 3.7 9s-1.3 6.5-3.7 9c-2.4-2.5-3.7-5.5-3.7-9S9.6 5.5 12 3z"/></svg>';
 // attributi di una voce: allergeni (per il filtro) e foto (per aprirla)
-const FA = e => (e.a.length ? ` data-a="${e.a.join(',')}"` : '') +
+const FA = e => ` data-a="${e.a.join(',')}"` + (e.ak === false ? ' data-ak="0"' : '') +
   (e.f ? ` data-foto="${E(e.f)}" data-n="${E(e.n)}" data-p="${E(e.p)}" data-d="${E(e.d)}" data-al="${E(algNames(e.a))}" role="button" tabindex="0"` : '');
 const CAM = f => f ? `<span class="cam" title="${E(T('tap'))}">${CAM_SVG}</span>` : '';
 const ALG = a => !a.length ? '' : `<span class="alg" title="${E(algNames(a))}" aria-label="${E(T('contains') + ': ' + algNames(a))}">${a.map(n => `<i data-k="${n}" aria-hidden="true">${n}</i>`).join('')}</span>`;
 // le voci di un gruppo, gia' nella lingua scelta
-const entries = g => g.items.map(i => ({n:L(i.n), sub:L(i.sub), d:L(i.d), p:eur(i.p), f:i.f || '', a:i.a || []}));
+const entries = g => g.items.map(i => ({n:L(i.n), sub:L(i.sub), d:L(i.d), p:eur(i.p), f:i.f || '', a:i.a || [], ak: i.ak}));
 function riviera(s, g){
   let h = L(g.title) ? `<div class="group-title">${E(L(g.title))}</div>` : '';
   const es = entries(g);
@@ -713,7 +766,33 @@ function coverSrc(f){
   if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600`;
   return f;   // link diretto, data: oppure nome di un file accanto alla pagina (es. copertina.jpg)
 }
-const PHOTO = () => INFO.photo ? `<div class="cphoto"><img src="${E(coverSrc(INFO.photo))}" alt=""></div>` : '';
+// foto del locale: in alto (copertina) oppure come sfondo leggero dietro tutto il menu
+let PHOTOMODE = null;
+const NEUTRO = '#1C1C1C';   // "solo foto": fondo scuro neutro, la foto si vede bene e i testi restano leggibili
+let BASE_COLOR = null;   // scelta fatta al volo (pulsante delle demo, anteprima del sito)
+const readPhotoMode = v => { v = String(v || '').toLowerCase();
+  if (/solo foto|senza colore|chiar|neutr|bianc/.test(v)) return 'sfondo-chiaro';
+  if (!v.includes('sfond')) return 'alto';
+  return 'sfondo'; };
+const photoMode = () => PHOTOMODE || INFO.photoMode || readPhotoMode(CONFIG.FOTO);
+const PHOTO = () => INFO.photo && !photoMode().startsWith('sfondo') ? `<div class="cphoto"><img src="${E(coverSrc(INFO.photo))}" alt=""></div>` : '';
+function applyBg(){
+  let bg = document.getElementById('bgphoto');
+  if (!bg) { bg = document.createElement('div'); bg.id = 'bgphoto'; bg.setAttribute('aria-hidden', 'true'); document.body.prepend(bg); }
+  const on = !!INFO.photo && photoMode().startsWith('sfondo');
+  bg.style.backgroundImage = on ? `url("${coverSrc(INFO.photo).replace(/"/g, '%22')}")` : 'none';
+  document.body.classList.toggle('has-bg', on);
+  // "solo foto": niente colore del locale, fondo chiaro neutro con la foto leggera sopra
+  const chiaro = on && photoMode() === 'sfondo-chiaro';
+  document.body.classList.toggle('bg-chiaro', chiaro);
+  if (chiaro) { if (COLOR !== NEUTRO) { BASE_COLOR = COLOR; applyColor(NEUTRO); } }
+  else if (BASE_COLOR) { const c = BASE_COLOR; BASE_COLOR = null; applyColor(c); }
+}
+const PH_TXT = {it: ['In alto', 'Sfondo', 'Solo foto'], en: ['On top', 'Background', 'Photo only'], de: ['Oben', 'Hintergrund', 'Nur Foto']};
+const PHSWITCH = () => (typeof DEMO_FOTO_SWITCH !== 'undefined' && DEMO_FOTO_SWITCH && INFO.photo)
+  ? `<div class="phswitch" role="group">${['alto', 'sfondo', 'sfondo-chiaro'].map((m, i) => `<button type="button" data-ph="${m}" class="${photoMode() === m ? 'on' : ''}" aria-pressed="${photoMode() === m}">${E((PH_TXT[LANG] || PH_TXT.it)[i])}</button>`).join('')}</div>` : '';
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-ph]'); if (!b) return;
+  PHOTOMODE = b.dataset.ph; setMode(mode, where()); });
 const NAME = () => E(L(INFO.name));
 const COVERS = {
   riviera:  () => `<div class="cover">${PHOTO()}${LOGO()}<h1>${NAME()}</h1><div class="place">${E(L(INFO.place))}</div>${hoursBox()}</div>`,
@@ -723,16 +802,20 @@ const COVERS = {
   notte:    () => `<div class="cover">${PHOTO()}${LOGO()}<h1>${NAME()}</h1><div class="place">${E(L(INFO.place))}</div>${hoursBox()}</div>`,
 };
 const cover = () => { const c = COVERS[STYLE]();
-  const n = (L(INFO.note) ? `<p class="covernote">${E(L(INFO.note))}</p>` : '') +
-    (HAS_ALG ? `<div class="cv-extra"><button class="algbtn" data-tool="alg">${ALG_SVG}<span>${E(T('algBtn'))}</span></button></div>` : '');
+  const n = PHSWITCH() + (L(INFO.note) ? `<p class="covernote">${E(L(INFO.note))}</p>` : '') +
+    (HAS_ALG ? `<div class="cv-extra"><button class="algbtn" data-tool="alg">${ALG_SVG}<span>${E(T('algBtn'))}</span></button></div>` : '') +
+    (INFO.credits !== false ? `<a class="credit" href="https://menu-in-tasca.github.io/" target="_blank" rel="noopener">${E(T('credit'))}</a>` : '');
   const i = c.lastIndexOf('</div>'); return c.slice(0, i) + n + c.slice(i); };
+// recensione: in fondo alle pagine del menu
+const REV = () => INFO.review ? `<div class="revfoot"><a class="revbtn" href="${E(INFO.review)}" target="_blank" rel="noopener">★ ${E(T('review'))}</a></div>` : '';
 const chips = (active) => `<div class="chipbar">${SECTIONS.map(s=>`<button class="chip${s.id===active?' active':''}" data-go="${s.id}">${E(CH(s))}</button>`).join('')}</div>`;
 const arrow = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
 // pulsanti in alto a destra: allergeni e lingua
 function tools(float){
   const many = LANGS.length > 1;
-  if (!many && !HAS_ALG) return '';
+  if (!many && !HAS_ALG && !INFO.review) return '';
   return `<div class="tools${float ? ' float' : ''}">` +
+    (INFO.review ? `<a class="tool" href="${E(INFO.review)}" target="_blank" rel="noopener" aria-label="${E(T('review'))}"><span aria-hidden="true" style="font-size:17px">★</span></a>` : '') +
     (HAS_ALG ? `<button class="tool${AVOID.size ? ' on' : ''}" data-tool="alg" aria-label="${E(T('alg'))}">${ALG_SVG}<span class="tn"${AVOID.size ? '' : ' hidden'}>${AVOID.size}</span></button>` : '') +
     (many ? `<button class="tool" data-tool="lang" aria-haspopup="menu" aria-expanded="false" aria-label="${E(T('lang'))}">${GLOBE_SVG}<span>${LANG.toUpperCase()}</span></button>
       <div class="langmenu" role="menu" hidden>${LANGS.map(l => `<button role="menuitemradio" aria-checked="${l===LANG}" data-lang="${l}" lang="${l}">${UI[l].name}<span aria-hidden="true">${l===LANG ? '✓' : ''}</span></button>`).join('')}</div>` : '') +
@@ -744,7 +827,7 @@ const app = document.getElementById('app');
 let mode = 'sfoglia', cleanup = () => {}, TOPEN = null;
 const MODES = {
   sfoglia(at){
-    const pages = [{id:'cover',title:L(INFO.name),html:cover()}, ...SECTIONS.map(s=>({id:s.id,title:TT(s),html:head(s)+body(s)}))];
+    const pages = [{id:'cover',title:L(INFO.name),html:cover()}, ...SECTIONS.map(s=>({id:s.id,title:TT(s),html:head(s)+body(s)+REV()}))];
     app.innerHTML = `<div class="topfix" id="top">${chips('')}${tools(false)}</div><div class="book" id="book">${pages.map(p=>`<section class="page" data-id="${p.id}" data-title="${E(p.title)}">${p.html}</section>`).join('')}</div>
       <div class="botnav"><button class="navbtn" id="prev" aria-label="${E(T('prev'))}">${arrow('M15 18l-6-6 6-6')}</button>
       <div class="pinfo"><b id="pt"></b><span id="pc"></span></div><button class="navbtn" id="next" aria-label="${E(T('next'))}">${arrow('M9 18l6-6-6-6')}</button></div>`;
@@ -761,7 +844,7 @@ const MODES = {
     return () => idx();
   },
   scroll(at){
-    app.innerHTML = `<div class="topfix" id="top">${chips(SECTIONS[0].id)}${tools(false)}</div><div class="flow"><section id="s-cover">${cover()}</section>${SECTIONS.map(s=>`<section id="s-${s.id}">${head(s)+body(s)}</section>`).join('')}</div>`;
+    app.innerHTML = `<div class="topfix" id="top">${chips(SECTIONS[0].id)}${tools(false)}</div><div class="flow"><section id="s-cover">${cover()}</section>${SECTIONS.map(s=>`<section id="s-${s.id}">${head(s)+body(s)}</section>`).join('')}${REV()}</div>`;
     document.getElementById('top').onclick = e => { const c = e.target.closest('[data-go]'); if (c) document.getElementById('s-'+c.dataset.go).scrollIntoView({behavior:'smooth'}); };
     const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ const id = en.target.id.slice(2);
       document.querySelectorAll('#top .chip').forEach(c => { const on = c.dataset.go===id; c.classList.toggle('active',on); if(on) c.scrollIntoView({inline:'center',block:'nearest'}); }); } }),
@@ -774,7 +857,7 @@ const MODES = {
   schede(at){
     app.innerHTML = `${tools(true)}<div class="acc"><div class="acc-cover">${cover()}</div>${SECTIONS.map(s=>`<div class="acc-item" id="a-${s.id}">
       <button class="acc-head" aria-expanded="false"><span class="t">${E(TT(s))}</span><span style="display:flex;align-items:center"><span class="n">${E(T('items')(count(s)))}</span>${arrow('M6 9l6 6 6-6')}</span></button>
-      <div class="acc-body hidden">${body(s)}</div></div>`).join('')}</div>`;
+      <div class="acc-body hidden">${body(s)}</div></div>`).join('')}${REV()}</div>`;
     const toggle = (it, scroll) => { const b = it.querySelector('.acc-head'), open = !it.classList.contains('open');
       app.querySelectorAll('.acc-item').forEach(x => { x.classList.remove('open'); x.querySelector('.acc-body').classList.add('hidden'); x.querySelector('.acc-head').setAttribute('aria-expanded','false'); });
       if (open){ it.classList.add('open'); it.querySelector('.acc-body').classList.remove('hidden'); b.setAttribute('aria-expanded','true'); if (scroll) it.scrollIntoView({behavior:'smooth',block:'start'}); } };
@@ -787,7 +870,7 @@ const MODES = {
       app.querySelectorAll('.tile').forEach(t => t.onclick = () => open(t.dataset.go)); applyAvoid(); fixImages(); window.scrollTo(0,0); };
     const open = (id, y) => { const i = SECTIONS.findIndex(s=>s.id===id), s = SECTIONS[i]; if (!s) return home(); TOPEN = id;
       app.innerHTML = `${tools(true)}<div class="sect-view"><button class="back" id="back">‹ ${E(T('all'))}</button>${head(s)+body(s)}
-        <div class="sect-nav"><button id="sp" ${i===0?'disabled':''}>‹ ${E(SECTIONS[i-1] ? CH(SECTIONS[i-1]) : '')}</button><button id="sn" ${i===SECTIONS.length-1?'disabled':''}>${E(SECTIONS[i+1] ? CH(SECTIONS[i+1]) : '')} ›</button></div></div>`;
+        <div class="sect-nav"><button id="sp" ${i===0?'disabled':''}>‹ ${E(SECTIONS[i-1] ? CH(SECTIONS[i-1]) : '')}</button><button id="sn" ${i===SECTIONS.length-1?'disabled':''}>${E(SECTIONS[i+1] ? CH(SECTIONS[i+1]) : '')} ›</button></div>${REV()}</div>`;
       document.getElementById('back').onclick = home;
       document.getElementById('sp').onclick = () => open(SECTIONS[i-1].id); document.getElementById('sn').onclick = () => open(SECTIONS[i+1].id);
       applyAvoid(); window.scrollTo({top:y || 0, behavior:'instant'}); };
@@ -796,8 +879,38 @@ const MODES = {
   }
 };
 let where = () => null;
-function setMode(m, at){ cleanup(); cleanup = () => {}; mode = m; document.body.className = 'm-' + m; if (!at) window.scrollTo(0,0);
-  where = MODES[m](at) || (() => null); applyAvoid(); fixImages(); }
+// ---------------- menu stagionale: fuori dai mesi di apertura compare "Ci vediamo la prossima stagione" ----------------
+const MESI = {it: ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'],
+  en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+  de: ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']};
+function mesiAperti(txt){
+  let s = String(txt || '').toLowerCase().replace(/\bda(l)?\s+/g, '').replace(/\s+(a|al|fino a)\s+/g, '-');
+  if (!s.trim()) return null;
+  const num = w => { w = (w || '').trim(); const n = parseInt(w, 10); if (n >= 1 && n <= 12) return n;
+    const i = MESI.it.findIndex(m => w.startsWith(m.slice(0, 3))); return i >= 0 ? i + 1 : 0; };
+  const set = new Set();
+  s.split(/,|;|\s+e\s+/).forEach(part => { const [a, b] = part.split('-').map(num); if (!a) return;
+    if (!b) { set.add(a); return; } let m = a; for (let k = 0; k < 12; k++) { set.add(m); if (m === b) break; m = m % 12 + 1; } });
+  return set.size ? set : null;
+}
+function inPausa(){
+  if (/[?&]aperto=1/.test(location.search)) return null;           // per controllare il menu anche fuori stagione
+  const aperti = mesiAperti(INFO.months); if (!aperti) return null;
+  const ora = new Date().getMonth() + 1; if (aperti.has(ora)) return null;
+  let m = ora; for (let k = 0; k < 12; k++) { m = m % 12 + 1; if (aperti.has(m)) return m; }
+  return null;
+}
+const PAUSA_TXT = {it: ['Ci vediamo la prossima stagione!', 'Riapriamo a'], en: ['See you next season!', 'We reopen in'], de: ['Bis zur nächsten Saison!', 'Wir öffnen wieder im']};
+function mostraPausa(m){
+  const t = PAUSA_TXT[LANG] || PAUSA_TXT.it;
+  document.body.className = 'm-pausa';
+  app.innerHTML = `<main class="pausa">${LOGO()}<h1>${E(L(INFO.name))}</h1>${L(INFO.place) ? `<p class="place">${E(L(INFO.place))}</p>` : ''}
+    <p class="pausa-big">${E(t[0])}</p><p class="pausa-when">${E(t[1])} ${E((MESI[LANG] || MESI.it)[m - 1])}</p></main>`;
+  fixImages(); applyBg();
+}
+function setMode(m, at){ const pausa = inPausa(); if (pausa) { cleanup(); cleanup = () => {}; mostraPausa(pausa); return; }
+  cleanup(); cleanup = () => {}; mode = m; document.body.className = 'm-' + m; if (!at) window.scrollTo(0,0);
+  where = MODES[m](at) || (() => null); applyAvoid(); fixImages(); applyBg(); }
 // logo mancante -> iniziali del locale; foto di copertina mancante -> si toglie
 function fixImages(){
   app.querySelectorAll('.medal img').forEach(img => { const f = () => img.replaceWith(document.createTextNode(initials()));
@@ -829,10 +942,18 @@ function parseAlg(s){      // "1, 7" oppure "glutine, latte" -> [1, 7]
     if (i >= 0) out.add(i + 1); });
   return [...out].sort((a, b) => a - b);
 }
+let AVHIDE = store.get('mit-avhide') === '1';
 function applyAvoid(){
+  document.body.classList.toggle('av-hide', AVHIDE && AVOID.size > 0);
   document.querySelectorAll('[data-a]').forEach(el => {
     const a = el.dataset.a.split(',').map(Number);
     el.classList.toggle('avoid', a.some(n => AVOID.has(n)));
+    // allergeni non indicati: non li consideriamo "sicuri"
+    const unk = AVOID.size > 0 && el.dataset.ak === '0';
+    el.classList.toggle('unk', unk);
+    let b = el.querySelector(':scope > .unkb');
+    if (unk && !b) { b = document.createElement('span'); b.className = 'unkb'; b.textContent = T('unk'); el.appendChild(b); }
+    else if (!unk && b) b.remove();
     el.querySelectorAll('.alg i').forEach(i => i.classList.toggle('hit', AVOID.has(+i.dataset.k)));
   });
   document.querySelectorAll('.tool[data-tool=alg]').forEach(b => { b.classList.toggle('on', AVOID.size > 0);
@@ -842,13 +963,14 @@ const ash = document.getElementById('ash'), ashBack = document.getElementById('a
 let ashFocus = null;
 function algCount(){
   if (!AVOID.size) return T('algNone');
-  let n = 0; SECTIONS.forEach(s => s.groups.forEach(g => g.items.forEach(i => { if ((i.a || []).some(x => AVOID.has(x))) n++; })));
-  return n ? T('algHit')(n) : T('algZero');
+  let n = 0, u = 0; SECTIONS.forEach(s => s.groups.forEach(g => g.items.forEach(i => { if ((i.a || []).some(x => AVOID.has(x))) n++; else if (i.ak === false) u++; })));
+  return (n ? T('algHit')(n) : T('algZero')) + (u ? ' ' + T('algUnk')(u) : '');
 }
 function openAlg(from){
   ashFocus = from || document.activeElement;
   ash.innerHTML = `<h3 id="ashT">${E(T('alg'))}</h3><p>${E(T('algIntro'))}</p>
     <div class="agrid">${ALLERGENS.map((a, i) => `<button aria-pressed="${AVOID.has(i+1)}" data-av="${i+1}"><i>${i+1}</i><span>${E(a[LANG])}</span></button>`).join('')}</div>
+    <label class="avhide"><input type="checkbox" id="avHide" ${AVHIDE ? 'checked' : ''}><span>${E(T('hide'))}</span></label>
     <p class="count" id="ashC" aria-live="polite">${E(algCount())}</p>
     <div class="acts"><button class="clr" data-ash="clear">${E(T('clear'))}</button><button class="ok" data-ash="done">${E(T('done'))}</button></div>
     <p class="fine">${E(T('algFine'))}</p>`;
@@ -861,10 +983,11 @@ function saveAvoid(){ store.set('mit-avoid', [...AVOID].join(',')); applyAvoid()
   document.getElementById('ashC').textContent = algCount(); }
 ash.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.av) { const n = +b.dataset.av; AVOID.has(n) ? AVOID.delete(n) : AVOID.add(n); saveAvoid(); }
+  if (b.dataset.av) { const n = +b.dataset.av; const prima = AVOID.size; AVOID.has(n) ? AVOID.delete(n) : AVOID.add(n); saveAvoid(); if (!prima && AVOID.size) statistica('allergeni'); }
   else if (b.dataset.ash === 'clear') { AVOID.clear(); saveAvoid(); }
   else if (b.dataset.ash === 'done') closeAlg();
 });
+ash.addEventListener('change', e => { if (e.target.id !== 'avHide') return; AVHIDE = e.target.checked; store.set('mit-avhide', AVHIDE ? '1' : ''); applyAvoid(); });
 ashBack.onclick = closeAlg;
 
 // ---------------- pulsanti (lingua, allergeni) ----------------
@@ -899,6 +1022,7 @@ function openFoto(el){
   document.getElementById('lbD').textContent = el.dataset.d || '';
   const al = document.getElementById('lbA'); al.textContent = el.dataset.al ? `${T('contains')}: ${el.dataset.al}` : ''; al.hidden = !el.dataset.al;
   lb.hidden = false; document.getElementById('lbX').focus();
+  statistica('foto', el.dataset.n || '');
 }
 function closeFoto(){ lb.hidden = true; lbImg.removeAttribute('src'); if (lastFocus) lastFocus.focus({preventScroll:true}); }
 lbImg.onerror = () => { lbImg.hidden = true; document.getElementById('lbMiss').hidden = false; };
@@ -941,13 +1065,19 @@ function buildMenu(menu, sez, info, trad){
     if (r.info) AUTOI.set(norm(r.info), r);
   });
   // --- Info: nome, luogo, orari, nota, foto di copertina ---
-  const I = {name:{}, place:{}, hours:[], note:{}, photo:''};
+  const I = {name:{}, place:{}, hours:[], note:{}, photo:'', photoMode:'', months:'', review:'', credits:true};
   (info || []).forEach(r => { const c = norm(r.campo), t = tri(r, 'testo');
     if (!has(t)) return;
-    if (!c.startsWith('nome') && !c.startsWith('foto') && !c.startsWith('copertina')) { const a = AUTOI.get(norm(t.it)) || {}; fill(t, a['info en'], a['info de']); }
+    if (!c.startsWith('nome') && !c.startsWith('foto') && !c.startsWith('copertina') && !c.startsWith('posizione') && !c.startsWith('mesi') && !c.includes('recension') && !c.startsWith('crediti')) { const a = AUTOI.get(norm(t.it)) || {}; fill(t, a['info en'], a['info de']); }
     if (c.startsWith('nome')) I.name = t; else if (c.startsWith('luogo') || c.startsWith('citta')) I.place = t;
     else if (c.startsWith('orari')) I.hours.push(t);
     else if (c.startsWith('nota')) I.note = t;
+    else if (c.startsWith('posizione')) I.photoMode = readPhotoMode(t.it);
+    else if (c.startsWith('mesi')) I.months = t.it;
+    else if (c.includes('recension')) { const v = String(t.it || '').trim();
+      if (/^https?:\/\//i.test(v)) I.review = v;
+      else if (/^ChIJ[\w-]{10,}$/.test(v)) I.review = 'https://search.google.com/local/writereview?placeid=' + v; }   // Place ID: apre subito la recensione
+    else if (c.startsWith('crediti')) I.credits = !norm(t.it).startsWith('n');
     else if (c.startsWith('foto') || c.startsWith('copertina') || c.startsWith('immagine')) I.photo = t.it || t.en || t.de; });
   // --- Sezioni: ordine, aspetto, titoli, nascoste ---
   const cfg = new Map();
@@ -974,23 +1104,52 @@ function buildMenu(menu, sez, info, trad){
              r.origine ? a['origine en'] : a['dettaglio en'], r.origine ? a['origine de'] : a['dettaglio de'])
       : fill(tri(r, 'dettaglio'), a['dettaglio en'], a['dettaglio de']);
     g.items.push({n: tri(r, 'nome'), sub, d: fill(tri(r, 'descrizione'), a['descrizione en'], a['descrizione de']),
-      p: r.prezzo || '', f: r.foto || '', a: parseAlg(r.allergeni)});
+      p: r.prezzo || '', f: r.foto || '', a: parseAlg(r.allergeni), ak: /\S/.test(String(r.allergeni == null ? '' : r.allergeni))});
   });
   const list = [...secs.values()].filter(x => x.show).sort((a, b) => a.ord - b.ord);
   list.forEach(x => { x.groups = x.groups.filter(g => g.items.length || g.text); });
   return {info: I, sections: list};
 }
 const CACHE = 'mit-menu2-' + CONFIG.SHEET_ID;
+// ---------------- statistiche anonime: solo numeri, nessun dato personale, nessun cookie ----------------
+function statistica(tipo, nome){
+  try {
+    if (typeof COLLEGATO === 'undefined' || !COLLEGATO || !CONFIG.STATISTICHE || window.self !== window.top) return;   // niente conteggi da demo e anteprime
+    if (/[?&](aperto=1|nostat)/.test(location.search)) return;
+    const body = JSON.stringify({azione: 'stat', id: CONFIG.SHEET_ID, tipo, nome: nome || '', lingua: LANG});
+    if (navigator.sendBeacon) navigator.sendBeacon(CONFIG.STATISTICHE, body);
+    else fetch(CONFIG.STATISTICHE, {method: 'POST', body, mode: 'no-cors', keepalive: true});
+  } catch (e) {}
+}
+const SEZ_VISTE = new Set();
+function sezioneAttuale(){
+  const w = where && where();
+  if (mode === 'sfoglia') return typeof w === 'number' && w > 0 ? (SECTIONS[w - 1] || {}).id : null;
+  if (mode === 'schede') return w && w.id ? String(w.id).replace(/^a-/, '') : null;
+  if (mode === 'tessere') return w && w.id;
+  let best = null;                                                   // scorrimento: la sezione che si sta leggendo
+  SECTIONS.forEach(x => { const el = document.getElementById('s-' + x.id); if (el && el.getBoundingClientRect().top < innerHeight * 0.45) best = x.id; });
+  return best;
+}
+function tracciaSezione(){ try { const id = sezioneAttuale(); if (!id || SEZ_VISTE.has(id)) return; SEZ_VISTE.add(id);
+  const s = SECTIONS.find(x => x.id === id); if (s) statistica('sezione', s.title.it || L(s.title)); } catch (e) {} }
+document.addEventListener('click', () => setTimeout(tracciaSezione, 500));
+window.addEventListener('scroll', () => { clearTimeout(tracciaSezione.t); tracciaSezione.t = setTimeout(tracciaSezione, 900); }, {passive: true});
+let STAT_VISTA = false;
 function show(data){
   INFO = data.info; SECTIONS = data.sections;
   HAS_ALG = SECTIONS.some(s => s.groups.some(g => g.items.some(i => (i.a || []).length)));
   document.documentElement.lang = LANG;
   document.title = L(INFO.name) ? `${L(INFO.name)} – Menu` : 'Menu';
   setMode(CONFIG.MODE, app.childElementCount && SECTIONS.length ? where() : null);
+  if (!STAT_VISTA) { STAT_VISTA = true;
+    const k = 'mit-vista-' + new Date().toISOString().slice(0, 10);          // una apertura per persona al giorno
+    let gia = false; try { gia = sessionStorage.getItem(k) === '1'; sessionStorage.setItem(k, '1'); } catch (e) {}
+    if (!gia) statistica('vista'); }
 }
 STYLE = CONFIG.STYLE; document.documentElement.dataset.style = STYLE; applyColor(CONFIG.COLOR); mode = CONFIG.MODE;
 const COLLEGATO = /^[A-Za-z0-9_-]{30,}$/.test(CONFIG.SHEET_ID) && !/INCOLLA/i.test(CONFIG.SHEET_ID);
-const DEMO = {"menu": [{"sezione": "Caffetteria", "categoria": "", "nome": "Caffè / Decaffeinato", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "1,30 / 1,50", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Espresso / Decaf", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Espresso / Entkoffeiniert", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Cappuccino", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "1,70", "visibile": "sì", "foto": "", "allergeni": "7", "categoria en": "", "nome en": "Cappuccino", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Cappuccino", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Cappuccino", "dettaglio": "soia / avena", "origine": "", "descrizione": "", "prezzo": "1,90", "visibile": "sì", "foto": "", "allergeni": "1, 6", "categoria en": "", "nome en": "Cappuccino", "dettaglio en": "soy / oat", "descrizione en": "", "categoria de": "", "nome de": "Cappuccino", "dettaglio de": "Soja / Hafer", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Latte macchiato", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "1,80", "visibile": "sì", "foto": "", "allergeni": "7", "categoria en": "", "nome en": "Latte macchiato", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Latte macchiato", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Orzo", "dettaglio": "piccolo / grande", "origine": "", "descrizione": "", "prezzo": "1,40 / 1,60", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "Barley coffee", "dettaglio en": "small / large", "descrizione en": "", "categoria de": "", "nome de": "Gerstenkaffee", "dettaglio de": "klein / groß", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Tè e tisane", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "2,50", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Tea and herbal tea", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Tee und Kräutertee", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Spremuta d'arancia", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "3,50", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Fresh orange juice", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Frisch gepresster Orangensaft", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Aperitivi", "categoria": "", "nome": "NOTA", "dettaglio": "", "origine": "", "descrizione": "Ogni aperitivo include un tagliere della casa.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "", "dettaglio en": "", "descrizione en": "Every aperitivo comes with a house sharing board.", "categoria de": "", "nome de": "", "dettaglio de": "", "descrizione de": "Zu jedem Aperitif gibt es eine Platte des Hauses."}, {"sezione": "Aperitivi", "categoria": "", "nome": "Spritz", "dettaglio": "", "origine": "", "descrizione": "prosecco, bitter e soda", "prezzo": "6,50", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Spritz", "dettaglio en": "", "descrizione en": "prosecco, bitter and soda", "categoria de": "", "nome de": "Spritz", "dettaglio de": "", "descrizione de": "Prosecco, Bitter und Soda"}, {"sezione": "Aperitivi", "categoria": "", "nome": "Hugo", "dettaglio": "", "origine": "", "descrizione": "prosecco, sambuco, menta e soda", "prezzo": "6,50", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Hugo", "dettaglio en": "", "descrizione en": "prosecco, elderflower, mint and soda", "categoria de": "", "nome de": "Hugo", "dettaglio de": "", "descrizione de": "Prosecco, Holunderblüte, Minze und Soda"}, {"sezione": "Aperitivi", "categoria": "", "nome": "Negroni", "dettaglio": "", "origine": "", "descrizione": "gin, bitter e vermouth rosso", "prezzo": "7,50", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Negroni", "dettaglio en": "", "descrizione en": "gin, bitter and red vermouth", "categoria de": "", "nome de": "Negroni", "dettaglio de": "", "descrizione de": "Gin, Bitter und roter Wermut"}, {"sezione": "Aperitivi", "categoria": "", "nome": "Americano", "dettaglio": "", "origine": "", "descrizione": "bitter, vermouth rosso e soda", "prezzo": "7,00", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Americano", "dettaglio en": "", "descrizione en": "bitter, red vermouth and soda", "categoria de": "", "nome de": "Americano", "dettaglio de": "", "descrizione de": "Bitter, roter Wermut und Soda"}, {"sezione": "Birre", "categoria": "", "nome": "Bionda alla spina", "dettaglio": "piccola / grande", "origine": "", "descrizione": "", "prezzo": "4,00 / 5,50", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "Draught lager", "dettaglio en": "small / large", "descrizione en": "", "categoria de": "", "nome de": "Helles vom Fass", "dettaglio de": "klein / groß", "descrizione de": ""}, {"sezione": "Birre", "categoria": "", "nome": "Rossa artigianale", "dettaglio": "33 cl", "origine": "", "descrizione": "", "prezzo": "5,50", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "Craft red ale", "dettaglio en": "33 cl", "descrizione en": "", "categoria de": "", "nome de": "Rotes Craft-Bier", "dettaglio de": "33 cl", "descrizione de": ""}, {"sezione": "Birre", "categoria": "", "nome": "IPA", "dettaglio": "33 cl", "origine": "", "descrizione": "agrumata e luppolata", "prezzo": "6,00", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "IPA", "dettaglio en": "33 cl", "descrizione en": "citrusy and hoppy", "categoria de": "", "nome de": "IPA", "dettaglio de": "33 cl", "descrizione de": "zitrusfrisch und hopfig"}, {"sezione": "Cocktail", "categoria": "", "nome": "Tramonto sul molo", "dettaglio": "", "origine": "", "descrizione": "rum bianco, passion fruit, lime e granatina", "prezzo": "9,00", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Tramonto sul molo", "dettaglio en": "", "descrizione en": "white rum, passion fruit, lime and grenadine", "categoria de": "", "nome de": "Tramonto sul molo", "dettaglio de": "", "descrizione de": "weißer Rum, Maracuja, Limette und Grenadine"}, {"sezione": "Cocktail", "categoria": "", "nome": "Pineta", "dettaglio": "", "origine": "", "descrizione": "gin, rosmarino, pompelmo e tonica", "prezzo": "9,00", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Pineta", "dettaglio en": "", "descrizione en": "gin, rosemary, grapefruit and tonic", "categoria de": "", "nome de": "Pineta", "dettaglio de": "", "descrizione de": "Gin, Rosmarin, Grapefruit und Tonic"}, {"sezione": "Cocktail", "categoria": "", "nome": "Lungomare", "dettaglio": "", "origine": "", "descrizione": "vodka, pesca bianca, basilico e soda", "prezzo": "9,00", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Lungomare", "dettaglio en": "", "descrizione en": "vodka, white peach, basil and soda", "categoria de": "", "nome de": "Lungomare", "dettaglio de": "", "descrizione de": "Wodka, weißer Pfirsich, Basilikum und Soda"}, {"sezione": "Cocktail", "categoria": "", "nome": "Moscow Mule", "dettaglio": "", "origine": "", "descrizione": "vodka, lime e ginger beer", "prezzo": "8,00", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Moscow Mule", "dettaglio en": "", "descrizione en": "vodka, lime and ginger beer", "categoria de": "", "nome de": "Moscow Mule", "dettaglio de": "", "descrizione de": "Wodka, Limette und Ginger Beer"}, {"sezione": "Analcolici", "categoria": "", "nome": "Virgin Mojito", "dettaglio": "", "origine": "", "descrizione": "lime, menta, zucchero di canna e soda", "prezzo": "6,00", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Virgin Mojito", "dettaglio en": "", "descrizione en": "lime, mint, cane sugar and soda", "categoria de": "", "nome de": "Virgin Mojito", "dettaglio de": "", "descrizione de": "Limette, Minze, Rohrzucker und Soda"}, {"sezione": "Analcolici", "categoria": "", "nome": "Estratto verde", "dettaglio": "", "origine": "", "descrizione": "mela, sedano, zenzero e limone", "prezzo": "5,00", "visibile": "sì", "foto": "", "allergeni": "9", "categoria en": "", "nome en": "Green juice", "dettaglio en": "", "descrizione en": "apple, celery, ginger and lemon", "categoria de": "", "nome de": "Grüner Saft", "dettaglio de": "", "descrizione de": "Apfel, Sellerie, Ingwer und Zitrone"}, {"sezione": "Analcolici", "categoria": "", "nome": "Crodino", "dettaglio": "", "origine": "", "descrizione": "aperitivo analcolico, ghiaccio e arancia", "prezzo": "4,00", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Crodino", "dettaglio en": "", "descrizione en": "alcohol-free aperitivo, ice and orange", "categoria de": "", "nome de": "Crodino", "dettaglio de": "", "descrizione de": "alkoholfreier Aperitif, Eis und Orange"}, {"sezione": "Vini", "categoria": "Bianchi e bollicine", "nome": "Lugana", "dettaglio": "", "origine": "Lago di Garda", "descrizione": "Fresco e sapido, frutta bianca e una nota minerale.", "prezzo": "5 / 22", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "Whites and sparkling", "nome en": "Lugana", "dettaglio en": "Lake Garda", "descrizione en": "Fresh and savoury, white fruit and a mineral note.", "categoria de": "Weiß- und Schaumweine", "nome de": "Lugana", "dettaglio de": "Gardasee", "descrizione de": "Frisch und würzig, weiße Früchte und eine mineralische Note."}, {"sezione": "Vini", "categoria": "Bianchi e bollicine", "nome": "Prosecco Valdobbiadene", "dettaglio": "", "origine": "Veneto", "descrizione": "Bollicina fine e fruttata, ideale per l'aperitivo.", "prezzo": "5 / 20", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Prosecco Valdobbiadene", "dettaglio en": "", "descrizione en": "Fine, fruity bubbles, perfect for aperitivo.", "categoria de": "", "nome de": "Prosecco Valdobbiadene", "dettaglio de": "", "descrizione de": "Feine, fruchtige Perlage, ideal zum Aperitif."}, {"sezione": "Vini", "categoria": "Rossi", "nome": "Sangiovese Superiore", "dettaglio": "", "origine": "Romagna", "descrizione": "Il rosso di casa: ciliegia e una nota terrosa.", "prezzo": "5 / 20", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "Reds", "nome en": "Sangiovese Superiore", "dettaglio en": "", "descrizione en": "Our house red: cherry and an earthy note.", "categoria de": "Rotweine", "nome de": "Sangiovese Superiore", "dettaglio de": "", "descrizione de": "Unser Hauswein: Kirsche und eine erdige Note."}, {"sezione": "Vini", "categoria": "Rossi", "nome": "Primitivo di Manduria", "dettaglio": "", "origine": "Puglia", "descrizione": "Caldo e avvolgente, frutti neri e spezie.", "prezzo": "6 / 26", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Primitivo di Manduria", "dettaglio en": "Apulia", "descrizione en": "Warm and rounded, dark fruit and spice.", "categoria de": "", "nome de": "Primitivo di Manduria", "dettaglio de": "Apulien", "descrizione de": "Warm und vollmundig, dunkle Früchte und Gewürze."}, {"sezione": "Gin", "categoria": "", "nome": "Malfy Con Limone", "dettaglio": "", "origine": "Italia", "descrizione": "Limoni della costiera: fresco e agrumato.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Malfy Con Limone", "dettaglio en": "Italy", "descrizione en": "Amalfi Coast lemons: fresh and citrusy.", "categoria de": "", "nome de": "Malfy Con Limone", "dettaglio de": "Italien", "descrizione de": "Zitronen von der Amalfiküste: frisch und spritzig."}, {"sezione": "Gin", "categoria": "", "nome": "Hendrick's", "dettaglio": "", "origine": "Scozia", "descrizione": "Rosa e cetriolo: morbido e floreale.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Hendrick's", "dettaglio en": "Scotland", "descrizione en": "Rose and cucumber: smooth and floral.", "categoria de": "", "nome de": "Hendrick's", "dettaglio de": "Schottland", "descrizione de": "Rose und Gurke: weich und blumig."}, {"sezione": "Gin", "categoria": "", "nome": "Gin Mare", "dettaglio": "", "origine": "Spagna", "descrizione": "Oliva, rosmarino e basilico: il Mediterraneo nel bicchiere.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "Gin Mare", "dettaglio en": "Spain", "descrizione en": "Olive, rosemary and basil: the Mediterranean in a glass.", "categoria de": "", "nome de": "Gin Mare", "dettaglio de": "Spanien", "descrizione de": "Olive, Rosmarin und Basilikum: das Mittelmeer im Glas."}], "sez": [{"sezione": "Caffetteria", "ordine": "1", "aspetto": "lista", "sopratitolo": "Colazione", "sottotitolo": "Caffè e bevande calde", "nome breve": "Caffè", "visibile": "sì", "sezione en": "Coffee", "sopratitolo en": "Breakfast", "sottotitolo en": "Coffee and hot drinks", "sezione de": "Kaffee", "sopratitolo de": "Frühstück", "sottotitolo de": "Kaffee und Heißgetränke"}, {"sezione": "Aperitivi", "ordine": "2", "aspetto": "lista", "sopratitolo": "Aperitivo", "sottotitolo": "I classici", "nome breve": "", "visibile": "sì", "sezione en": "Aperitivo", "sopratitolo en": "Happy hour", "sottotitolo en": "The classics", "sezione de": "Aperitivo", "sopratitolo de": "Happy Hour", "sottotitolo de": "Die Klassiker"}, {"sezione": "Birre", "ordine": "3", "aspetto": "lista", "sopratitolo": "Alla spina e in bottiglia", "sottotitolo": "", "nome breve": "", "visibile": "sì", "sezione en": "Beers", "sopratitolo en": "On tap and bottled", "sottotitolo en": "", "sezione de": "Biere", "sopratitolo de": "Vom Fass und aus der Flasche", "sottotitolo de": ""}, {"sezione": "Cocktail", "ordine": "4", "aspetto": "lista", "sopratitolo": "La casa", "sottotitolo": "Ricette nostre", "nome breve": "", "visibile": "sì", "sezione en": "Cocktails", "sopratitolo en": "House specials", "sottotitolo en": "Our own recipes", "sezione de": "Cocktails", "sopratitolo de": "Aus unserer Bar", "sottotitolo de": "Eigene Rezepte"}, {"sezione": "Analcolici", "ordine": "5", "aspetto": "lista", "sopratitolo": "Senza alcol", "sottotitolo": "Freschi e alla frutta", "nome breve": "", "visibile": "sì", "sezione en": "Alcohol-free", "sopratitolo en": "No alcohol", "sottotitolo en": "Fresh and fruity", "sezione de": "Alkoholfrei", "sopratitolo de": "Ohne Alkohol", "sottotitolo de": "Frisch und fruchtig"}, {"sezione": "Vini", "ordine": "6", "aspetto": "schede", "sopratitolo": "Carta dei vini", "sottotitolo": "Al calice e in bottiglia", "nome breve": "", "visibile": "sì", "sezione en": "Wines", "sopratitolo en": "Wine list", "sottotitolo en": "By the glass and by the bottle", "sezione de": "Weine", "sopratitolo de": "Weinkarte", "sottotitolo de": "Offen und in der Flasche"}, {"sezione": "Gin", "ordine": "7", "aspetto": "schede", "sopratitolo": "Gin tonic", "sottotitolo": "Ogni gin tonic 10€", "nome breve": "", "visibile": "sì", "sezione en": "Gin", "sopratitolo en": "Gin & tonic", "sottotitolo en": "Every gin & tonic €10", "sezione de": "Gin", "sopratitolo de": "Gin Tonic", "sottotitolo de": "Jeder Gin Tonic 10 €"}], "info": [{"campo": "Nome del locale", "testo": "Bar del Porto", "testo en": "", "testo de": ""}, {"campo": "Luogo", "testo": "Porto canale · Bellaria Igea Marina", "testo en": "Canal harbour · Bellaria Igea Marina", "testo de": "Hafenkanal · Bellaria Igea Marina"}, {"campo": "Orario", "testo": "Lunedì - Venerdì | 7:00 - 22:00", "testo en": "Monday - Friday | 7:00 - 22:00", "testo de": "Montag - Freitag | 7:00 - 22:00"}, {"campo": "Orario", "testo": "Sabato e Domenica | 8:00 - 24:00", "testo en": "Saturday and Sunday | 8:00 - 24:00", "testo de": "Samstag und Sonntag | 8:00 - 24:00"}, {"campo": "Nota in copertina", "testo": "Per informazioni su allergeni e intolleranze chiedi al personale.", "testo en": "For information on allergens and intolerances, please ask our staff.", "testo de": "Informationen zu Allergenen und Unverträglichkeiten erhalten Sie beim Personal."}, {"campo": "Foto di copertina", "testo": "", "testo en": "", "testo de": ""}], "photo": "data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20800%20500%22%3E%3Cdefs%3E%3ClinearGradient%20id=%22s%22%20x1=%220%22%20y1=%220%22%20x2=%220%22%20y2=%221%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%23F6B27A%22/%3E%3Cstop%20offset=%22.55%22%20stop-color=%22%23FAD7A6%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%23FDEBD0%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id=%22m%22%20x1=%220%22%20y1=%220%22%20x2=%220%22%20y2=%221%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%232D9BC4%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%230E5C7A%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width=%22800%22%20height=%22500%22%20fill=%22url(%23s)%22/%3E%3Ccircle%20cx=%22560%22%20cy=%22265%22%20r=%2270%22%20fill=%22%23FFF3DC%22%20opacity=%22.9%22/%3E%3Cpath%20d=%22M0%20250%20Q120%20232%20240%20246%20T520%20240%20T800%20244%20V300%20H0Z%22%20fill=%22%23E7A774%22%20opacity=%22.55%22/%3E%3Crect%20y=%22292%22%20width=%22800%22%20height=%22208%22%20fill=%22url(%23m)%22/%3E%3Cg%20stroke=%22%23fff%22%20stroke-width=%223%22%20stroke-linecap=%22round%22%20opacity=%22.35%22%3E%3Cpath%20d=%22M470%20318h120M500%20340h70M455%20362h40M610%20360h90M80%20400h110M300%20430h140M620%20450h110%22/%3E%3C/g%3E%3Cpath%20d=%22M0%20330%20L330%20312%20L330%20326%20L0%20350Z%22%20fill=%22%236E4B35%22/%3E%3Cg%20fill=%22%235A3B28%22%3E%3Crect%20x=%2240%22%20y=%22326%22%20width=%226%22%20height=%2240%22/%3E%3Crect%20x=%22120%22%20y=%22322%22%20width=%226%22%20height=%2240%22/%3E%3Crect%20x=%22200%22%20y=%22318%22%20width=%226%22%20height=%2240%22/%3E%3Crect%20x=%22280%22%20y=%22314%22%20width=%226%22%20height=%2240%22/%3E%3C/g%3E%3Crect%20x=%22296%22%20y=%22222%22%20width=%2226%22%20height=%2292%22%20fill=%22%23F4F1EC%22/%3E%3Crect%20x=%22296%22%20y=%22244%22%20width=%2226%22%20height=%2212%22%20fill=%22%23D9453A%22/%3E%3Crect%20x=%22296%22%20y=%22272%22%20width=%2226%22%20height=%2212%22%20fill=%22%23D9453A%22/%3E%3Crect%20x=%22291%22%20y=%22210%22%20width=%2236%22%20height=%2214%22%20rx=%223%22%20fill=%22%233B3B3B%22/%3E%3Cpath%20d=%22M298%20210%20L309%20190%20L320%20210Z%22%20fill=%22%23D9453A%22/%3E%3Cg%20transform=%22translate(610%20360)%22%3E%3Cpath%20d=%22M-46%200%20H46%20L34%2018%20H-34Z%22%20fill=%22%23F4F1EC%22/%3E%3Cpath%20d=%22M0%20-4%20V-96%22%20stroke=%22%233B3B3B%22%20stroke-width=%223%22/%3E%3Cpath%20d=%22M4%20-92%20L50%20-10%20H4Z%22%20fill=%22%23fff%22/%3E%3Cpath%20d=%22M-4%20-80%20L-40%20-10%20H-4Z%22%20fill=%22%23F0D9C2%22/%3E%3C/g%3E%3Cg%20transform=%22translate(430%20300)%20scale(.55)%22%3E%3Cpath%20d=%22M-46%200%20H46%20L34%2018%20H-34Z%22%20fill=%22%23F4F1EC%22/%3E%3Cpath%20d=%22M0%20-4%20V-96%22%20stroke=%22%233B3B3B%22%20stroke-width=%224%22/%3E%3Cpath%20d=%22M4%20-92%20L50%20-10%20H4Z%22%20fill=%22%23fff%22/%3E%3C/g%3E%3Cg%20fill=%22none%22%20stroke=%22%236B5344%22%20stroke-width=%223%22%20stroke-linecap=%22round%22%3E%3Cpath%20d=%22M150%20120%20q10%20-10%2020%200%20q10%20-10%2020%200%22/%3E%3Cpath%20d=%22M215%2095%20q8%20-8%2016%200%20q8%20-8%2016%200%22/%3E%3C/g%3E%3C/svg%3E"};
+const DEMO = {"menu": [{"sezione": "Caffetteria", "categoria": "", "nome": "Caffè / Decaffeinato", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "1,30 / 1,50", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Espresso / Decaf", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Espresso / Entkoffeiniert", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Cappuccino", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "1,70", "visibile": "sì", "foto": "", "allergeni": "7", "categoria en": "", "nome en": "Cappuccino", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Cappuccino", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Cappuccino", "dettaglio": "soia / avena", "origine": "", "descrizione": "", "prezzo": "1,90", "visibile": "sì", "foto": "", "allergeni": "1, 6", "categoria en": "", "nome en": "Cappuccino", "dettaglio en": "soy / oat", "descrizione en": "", "categoria de": "", "nome de": "Cappuccino", "dettaglio de": "Soja / Hafer", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Latte macchiato", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "1,80", "visibile": "sì", "foto": "", "allergeni": "7", "categoria en": "", "nome en": "Latte macchiato", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Latte macchiato", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Orzo", "dettaglio": "piccolo / grande", "origine": "", "descrizione": "", "prezzo": "1,40 / 1,60", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "Barley coffee", "dettaglio en": "small / large", "descrizione en": "", "categoria de": "", "nome de": "Gerstenkaffee", "dettaglio de": "klein / groß", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Tè e tisane", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "2,50", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Tea and herbal tea", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Tee und Kräutertee", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Caffetteria", "categoria": "", "nome": "Spremuta d'arancia", "dettaglio": "", "origine": "", "descrizione": "", "prezzo": "3,50", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Fresh orange juice", "dettaglio en": "", "descrizione en": "", "categoria de": "", "nome de": "Frisch gepresster Orangensaft", "dettaglio de": "", "descrizione de": ""}, {"sezione": "Aperitivi", "categoria": "", "nome": "NOTA", "dettaglio": "", "origine": "", "descrizione": "Ogni aperitivo include un tagliere della casa.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "", "categoria en": "", "nome en": "", "dettaglio en": "", "descrizione en": "Every aperitivo comes with a house sharing board.", "categoria de": "", "nome de": "", "dettaglio de": "", "descrizione de": "Zu jedem Aperitif gibt es eine Platte des Hauses."}, {"sezione": "Aperitivi", "categoria": "", "nome": "Spritz", "dettaglio": "", "origine": "", "descrizione": "prosecco, bitter e soda", "prezzo": "6,50", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Spritz", "dettaglio en": "", "descrizione en": "prosecco, bitter and soda", "categoria de": "", "nome de": "Spritz", "dettaglio de": "", "descrizione de": "Prosecco, Bitter und Soda"}, {"sezione": "Aperitivi", "categoria": "", "nome": "Hugo", "dettaglio": "", "origine": "", "descrizione": "prosecco, sambuco, menta e soda", "prezzo": "6,50", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Hugo", "dettaglio en": "", "descrizione en": "prosecco, elderflower, mint and soda", "categoria de": "", "nome de": "Hugo", "dettaglio de": "", "descrizione de": "Prosecco, Holunderblüte, Minze und Soda"}, {"sezione": "Aperitivi", "categoria": "", "nome": "Negroni", "dettaglio": "", "origine": "", "descrizione": "gin, bitter e vermouth rosso", "prezzo": "7,50", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Negroni", "dettaglio en": "", "descrizione en": "gin, bitter and red vermouth", "categoria de": "", "nome de": "Negroni", "dettaglio de": "", "descrizione de": "Gin, Bitter und roter Wermut"}, {"sezione": "Aperitivi", "categoria": "", "nome": "Americano", "dettaglio": "", "origine": "", "descrizione": "bitter, vermouth rosso e soda", "prezzo": "7,00", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Americano", "dettaglio en": "", "descrizione en": "bitter, red vermouth and soda", "categoria de": "", "nome de": "Americano", "dettaglio de": "", "descrizione de": "Bitter, roter Wermut und Soda"}, {"sezione": "Birre", "categoria": "", "nome": "Bionda alla spina", "dettaglio": "piccola / grande", "origine": "", "descrizione": "", "prezzo": "4,00 / 5,50", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "Draught lager", "dettaglio en": "small / large", "descrizione en": "", "categoria de": "", "nome de": "Helles vom Fass", "dettaglio de": "klein / groß", "descrizione de": ""}, {"sezione": "Birre", "categoria": "", "nome": "Rossa artigianale", "dettaglio": "33 cl", "origine": "", "descrizione": "", "prezzo": "5,50", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "Craft red ale", "dettaglio en": "33 cl", "descrizione en": "", "categoria de": "", "nome de": "Rotes Craft-Bier", "dettaglio de": "33 cl", "descrizione de": ""}, {"sezione": "Birre", "categoria": "", "nome": "IPA", "dettaglio": "33 cl", "origine": "", "descrizione": "agrumata e luppolata", "prezzo": "6,00", "visibile": "sì", "foto": "", "allergeni": "1", "categoria en": "", "nome en": "IPA", "dettaglio en": "33 cl", "descrizione en": "citrusy and hoppy", "categoria de": "", "nome de": "IPA", "dettaglio de": "33 cl", "descrizione de": "zitrusfrisch und hopfig"}, {"sezione": "Cocktail", "categoria": "", "nome": "Tramonto sul molo", "dettaglio": "", "origine": "", "descrizione": "rum bianco, passion fruit, lime e granatina", "prezzo": "9,00", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Tramonto sul molo", "dettaglio en": "", "descrizione en": "white rum, passion fruit, lime and grenadine", "categoria de": "", "nome de": "Tramonto sul molo", "dettaglio de": "", "descrizione de": "weißer Rum, Maracuja, Limette und Grenadine"}, {"sezione": "Cocktail", "categoria": "", "nome": "Pineta", "dettaglio": "", "origine": "", "descrizione": "gin, rosmarino, pompelmo e tonica", "prezzo": "9,00", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Pineta", "dettaglio en": "", "descrizione en": "gin, rosemary, grapefruit and tonic", "categoria de": "", "nome de": "Pineta", "dettaglio de": "", "descrizione de": "Gin, Rosmarin, Grapefruit und Tonic"}, {"sezione": "Cocktail", "categoria": "", "nome": "Lungomare", "dettaglio": "", "origine": "", "descrizione": "vodka, pesca bianca, basilico e soda", "prezzo": "9,00", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Lungomare", "dettaglio en": "", "descrizione en": "vodka, white peach, basil and soda", "categoria de": "", "nome de": "Lungomare", "dettaglio de": "", "descrizione de": "Wodka, weißer Pfirsich, Basilikum und Soda"}, {"sezione": "Cocktail", "categoria": "", "nome": "Moscow Mule", "dettaglio": "", "origine": "", "descrizione": "vodka, lime e ginger beer", "prezzo": "8,00", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Moscow Mule", "dettaglio en": "", "descrizione en": "vodka, lime and ginger beer", "categoria de": "", "nome de": "Moscow Mule", "dettaglio de": "", "descrizione de": "Wodka, Limette und Ginger Beer"}, {"sezione": "Analcolici", "categoria": "", "nome": "Virgin Mojito", "dettaglio": "", "origine": "", "descrizione": "lime, menta, zucchero di canna e soda", "prezzo": "6,00", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Virgin Mojito", "dettaglio en": "", "descrizione en": "lime, mint, cane sugar and soda", "categoria de": "", "nome de": "Virgin Mojito", "dettaglio de": "", "descrizione de": "Limette, Minze, Rohrzucker und Soda"}, {"sezione": "Analcolici", "categoria": "", "nome": "Estratto verde", "dettaglio": "", "origine": "", "descrizione": "mela, sedano, zenzero e limone", "prezzo": "5,00", "visibile": "sì", "foto": "", "allergeni": "9", "categoria en": "", "nome en": "Green juice", "dettaglio en": "", "descrizione en": "apple, celery, ginger and lemon", "categoria de": "", "nome de": "Grüner Saft", "dettaglio de": "", "descrizione de": "Apfel, Sellerie, Ingwer und Zitrone"}, {"sezione": "Analcolici", "categoria": "", "nome": "Crodino", "dettaglio": "", "origine": "", "descrizione": "aperitivo analcolico, ghiaccio e arancia", "prezzo": "4,00", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Crodino", "dettaglio en": "", "descrizione en": "alcohol-free aperitivo, ice and orange", "categoria de": "", "nome de": "Crodino", "dettaglio de": "", "descrizione de": "alkoholfreier Aperitif, Eis und Orange"}, {"sezione": "Vini", "categoria": "Bianchi e bollicine", "nome": "Lugana", "dettaglio": "", "origine": "Lago di Garda", "descrizione": "Fresco e sapido, frutta bianca e una nota minerale.", "prezzo": "5 / 22", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "Whites and sparkling", "nome en": "Lugana", "dettaglio en": "Lake Garda", "descrizione en": "Fresh and savoury, white fruit and a mineral note.", "categoria de": "Weiß- und Schaumweine", "nome de": "Lugana", "dettaglio de": "Gardasee", "descrizione de": "Frisch und würzig, weiße Früchte und eine mineralische Note."}, {"sezione": "Vini", "categoria": "Bianchi e bollicine", "nome": "Prosecco Valdobbiadene", "dettaglio": "", "origine": "Veneto", "descrizione": "Bollicina fine e fruttata, ideale per l'aperitivo.", "prezzo": "5 / 20", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Prosecco Valdobbiadene", "dettaglio en": "", "descrizione en": "Fine, fruity bubbles, perfect for aperitivo.", "categoria de": "", "nome de": "Prosecco Valdobbiadene", "dettaglio de": "", "descrizione de": "Feine, fruchtige Perlage, ideal zum Aperitif."}, {"sezione": "Vini", "categoria": "Rossi", "nome": "Sangiovese Superiore", "dettaglio": "", "origine": "Romagna", "descrizione": "Il rosso di casa: ciliegia e una nota terrosa.", "prezzo": "5 / 20", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "Reds", "nome en": "Sangiovese Superiore", "dettaglio en": "", "descrizione en": "Our house red: cherry and an earthy note.", "categoria de": "Rotweine", "nome de": "Sangiovese Superiore", "dettaglio de": "", "descrizione de": "Unser Hauswein: Kirsche und eine erdige Note."}, {"sezione": "Vini", "categoria": "Rossi", "nome": "Primitivo di Manduria", "dettaglio": "", "origine": "Puglia", "descrizione": "Caldo e avvolgente, frutti neri e spezie.", "prezzo": "6 / 26", "visibile": "sì", "foto": "", "allergeni": "12", "categoria en": "", "nome en": "Primitivo di Manduria", "dettaglio en": "Apulia", "descrizione en": "Warm and rounded, dark fruit and spice.", "categoria de": "", "nome de": "Primitivo di Manduria", "dettaglio de": "Apulien", "descrizione de": "Warm und vollmundig, dunkle Früchte und Gewürze."}, {"sezione": "Gin", "categoria": "", "nome": "Malfy Con Limone", "dettaglio": "", "origine": "Italia", "descrizione": "Limoni della costiera: fresco e agrumato.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Malfy Con Limone", "dettaglio en": "Italy", "descrizione en": "Amalfi Coast lemons: fresh and citrusy.", "categoria de": "", "nome de": "Malfy Con Limone", "dettaglio de": "Italien", "descrizione de": "Zitronen von der Amalfiküste: frisch und spritzig."}, {"sezione": "Gin", "categoria": "", "nome": "Hendrick's", "dettaglio": "", "origine": "Scozia", "descrizione": "Rosa e cetriolo: morbido e floreale.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Hendrick's", "dettaglio en": "Scotland", "descrizione en": "Rose and cucumber: smooth and floral.", "categoria de": "", "nome de": "Hendrick's", "dettaglio de": "Schottland", "descrizione de": "Rose und Gurke: weich und blumig."}, {"sezione": "Gin", "categoria": "", "nome": "Gin Mare", "dettaglio": "", "origine": "Spagna", "descrizione": "Oliva, rosmarino e basilico: il Mediterraneo nel bicchiere.", "prezzo": "", "visibile": "sì", "foto": "", "allergeni": "nessuno", "categoria en": "", "nome en": "Gin Mare", "dettaglio en": "Spain", "descrizione en": "Olive, rosemary and basil: the Mediterranean in a glass.", "categoria de": "", "nome de": "Gin Mare", "dettaglio de": "Spanien", "descrizione de": "Olive, Rosmarin und Basilikum: das Mittelmeer im Glas."}], "sez": [{"sezione": "Caffetteria", "ordine": "1", "aspetto": "lista", "sopratitolo": "Colazione", "sottotitolo": "Caffè e bevande calde", "nome breve": "Caffè", "visibile": "sì", "sezione en": "Coffee", "sopratitolo en": "Breakfast", "sottotitolo en": "Coffee and hot drinks", "sezione de": "Kaffee", "sopratitolo de": "Frühstück", "sottotitolo de": "Kaffee und Heißgetränke"}, {"sezione": "Aperitivi", "ordine": "2", "aspetto": "lista", "sopratitolo": "Aperitivo", "sottotitolo": "I classici", "nome breve": "", "visibile": "sì", "sezione en": "Aperitivo", "sopratitolo en": "Happy hour", "sottotitolo en": "The classics", "sezione de": "Aperitivo", "sopratitolo de": "Happy Hour", "sottotitolo de": "Die Klassiker"}, {"sezione": "Birre", "ordine": "3", "aspetto": "lista", "sopratitolo": "Alla spina e in bottiglia", "sottotitolo": "", "nome breve": "", "visibile": "sì", "sezione en": "Beers", "sopratitolo en": "On tap and bottled", "sottotitolo en": "", "sezione de": "Biere", "sopratitolo de": "Vom Fass und aus der Flasche", "sottotitolo de": ""}, {"sezione": "Cocktail", "ordine": "4", "aspetto": "lista", "sopratitolo": "La casa", "sottotitolo": "Ricette nostre", "nome breve": "", "visibile": "sì", "sezione en": "Cocktails", "sopratitolo en": "House specials", "sottotitolo en": "Our own recipes", "sezione de": "Cocktails", "sopratitolo de": "Aus unserer Bar", "sottotitolo de": "Eigene Rezepte"}, {"sezione": "Analcolici", "ordine": "5", "aspetto": "lista", "sopratitolo": "Senza alcol", "sottotitolo": "Freschi e alla frutta", "nome breve": "", "visibile": "sì", "sezione en": "Alcohol-free", "sopratitolo en": "No alcohol", "sottotitolo en": "Fresh and fruity", "sezione de": "Alkoholfrei", "sopratitolo de": "Ohne Alkohol", "sottotitolo de": "Frisch und fruchtig"}, {"sezione": "Vini", "ordine": "6", "aspetto": "schede", "sopratitolo": "Carta dei vini", "sottotitolo": "Al calice e in bottiglia", "nome breve": "", "visibile": "sì", "sezione en": "Wines", "sopratitolo en": "Wine list", "sottotitolo en": "By the glass and by the bottle", "sezione de": "Weine", "sopratitolo de": "Weinkarte", "sottotitolo de": "Offen und in der Flasche"}, {"sezione": "Gin", "ordine": "7", "aspetto": "schede", "sopratitolo": "Gin tonic", "sottotitolo": "Ogni gin tonic 10€", "nome breve": "", "visibile": "sì", "sezione en": "Gin", "sopratitolo en": "Gin & tonic", "sottotitolo en": "Every gin & tonic €10", "sezione de": "Gin", "sopratitolo de": "Gin Tonic", "sottotitolo de": "Jeder Gin Tonic 10 €"}], "info": [{"campo": "Nome del locale", "testo": "Bar del Porto", "testo en": "", "testo de": ""}, {"campo": "Luogo", "testo": "Porto canale · Bellaria Igea Marina", "testo en": "Canal harbour · Bellaria Igea Marina", "testo de": "Hafenkanal · Bellaria Igea Marina"}, {"campo": "Orario", "testo": "Lunedì - Venerdì | 7:00 - 22:00", "testo en": "Monday - Friday | 7:00 - 22:00", "testo de": "Montag - Freitag | 7:00 - 22:00"}, {"campo": "Orario", "testo": "Sabato e Domenica | 8:00 - 24:00", "testo en": "Saturday and Sunday | 8:00 - 24:00", "testo de": "Samstag und Sonntag | 8:00 - 24:00"}, {"campo": "Nota in copertina", "testo": "Per informazioni su allergeni e intolleranze chiedi al personale.", "testo en": "For information on allergens and intolerances, please ask our staff.", "testo de": "Informationen zu Allergenen und Unverträglichkeiten erhalten Sie beim Personal."}, {"campo": "Foto di copertina", "testo": "", "testo en": "", "testo de": ""}, {"campo": "Posizione foto", "testo": "in alto", "testo en": "", "testo de": ""}, {"campo": "Mesi di apertura", "testo": "", "testo en": "", "testo de": ""}, {"campo": "Link recensioni", "testo": "", "testo en": "", "testo de": ""}, {"campo": "Crediti Menù in Tasca", "testo": "sì", "testo en": "", "testo de": ""}], "photo": "data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20800%20500%22%3E%3Cdefs%3E%3ClinearGradient%20id=%22s%22%20x1=%220%22%20y1=%220%22%20x2=%220%22%20y2=%221%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%23F6B27A%22/%3E%3Cstop%20offset=%22.55%22%20stop-color=%22%23FAD7A6%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%23FDEBD0%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id=%22m%22%20x1=%220%22%20y1=%220%22%20x2=%220%22%20y2=%221%22%3E%3Cstop%20offset=%220%22%20stop-color=%22%232D9BC4%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22%230E5C7A%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width=%22800%22%20height=%22500%22%20fill=%22url(%23s)%22/%3E%3Ccircle%20cx=%22560%22%20cy=%22265%22%20r=%2270%22%20fill=%22%23FFF3DC%22%20opacity=%22.9%22/%3E%3Cpath%20d=%22M0%20250%20Q120%20232%20240%20246%20T520%20240%20T800%20244%20V300%20H0Z%22%20fill=%22%23E7A774%22%20opacity=%22.55%22/%3E%3Crect%20y=%22292%22%20width=%22800%22%20height=%22208%22%20fill=%22url(%23m)%22/%3E%3Cg%20stroke=%22%23fff%22%20stroke-width=%223%22%20stroke-linecap=%22round%22%20opacity=%22.35%22%3E%3Cpath%20d=%22M470%20318h120M500%20340h70M455%20362h40M610%20360h90M80%20400h110M300%20430h140M620%20450h110%22/%3E%3C/g%3E%3Cpath%20d=%22M0%20330%20L330%20312%20L330%20326%20L0%20350Z%22%20fill=%22%236E4B35%22/%3E%3Cg%20fill=%22%235A3B28%22%3E%3Crect%20x=%2240%22%20y=%22326%22%20width=%226%22%20height=%2240%22/%3E%3Crect%20x=%22120%22%20y=%22322%22%20width=%226%22%20height=%2240%22/%3E%3Crect%20x=%22200%22%20y=%22318%22%20width=%226%22%20height=%2240%22/%3E%3Crect%20x=%22280%22%20y=%22314%22%20width=%226%22%20height=%2240%22/%3E%3C/g%3E%3Crect%20x=%22296%22%20y=%22222%22%20width=%2226%22%20height=%2292%22%20fill=%22%23F4F1EC%22/%3E%3Crect%20x=%22296%22%20y=%22244%22%20width=%2226%22%20height=%2212%22%20fill=%22%23D9453A%22/%3E%3Crect%20x=%22296%22%20y=%22272%22%20width=%2226%22%20height=%2212%22%20fill=%22%23D9453A%22/%3E%3Crect%20x=%22291%22%20y=%22210%22%20width=%2236%22%20height=%2214%22%20rx=%223%22%20fill=%22%233B3B3B%22/%3E%3Cpath%20d=%22M298%20210%20L309%20190%20L320%20210Z%22%20fill=%22%23D9453A%22/%3E%3Cg%20transform=%22translate(610%20360)%22%3E%3Cpath%20d=%22M-46%200%20H46%20L34%2018%20H-34Z%22%20fill=%22%23F4F1EC%22/%3E%3Cpath%20d=%22M0%20-4%20V-96%22%20stroke=%22%233B3B3B%22%20stroke-width=%223%22/%3E%3Cpath%20d=%22M4%20-92%20L50%20-10%20H4Z%22%20fill=%22%23fff%22/%3E%3Cpath%20d=%22M-4%20-80%20L-40%20-10%20H-4Z%22%20fill=%22%23F0D9C2%22/%3E%3C/g%3E%3Cg%20transform=%22translate(430%20300)%20scale(.55)%22%3E%3Cpath%20d=%22M-46%200%20H46%20L34%2018%20H-34Z%22%20fill=%22%23F4F1EC%22/%3E%3Cpath%20d=%22M0%20-4%20V-96%22%20stroke=%22%233B3B3B%22%20stroke-width=%224%22/%3E%3Cpath%20d=%22M4%20-92%20L50%20-10%20H4Z%22%20fill=%22%23fff%22/%3E%3C/g%3E%3Cg%20fill=%22none%22%20stroke=%22%236B5344%22%20stroke-width=%223%22%20stroke-linecap=%22round%22%3E%3Cpath%20d=%22M150%20120%20q10%20-10%2020%200%20q10%20-10%2020%200%22/%3E%3Cpath%20d=%22M215%2095%20q8%20-8%2016%200%20q8%20-8%2016%200%22/%3E%3C/g%3E%3C/svg%3E"};
 if (!COLLEGATO) {   // modello non ancora collegato a un foglio: mostro un esempio
   const d = buildMenu(DEMO.menu, DEMO.sez, DEMO.info);
   d.info.note = DEMO.note || {it: UI.it.demo, en: UI.en.demo, de: UI.de.demo};
